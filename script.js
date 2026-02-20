@@ -1,72 +1,91 @@
 let equilibrio = 0;
-let etapa = 0;
+let cenaAtual = 0;
 
-const storyElement = document.getElementById("story");
+const nameElement = document.getElementById("name");
+const textElement = document.getElementById("text");
 const choicesElement = document.getElementById("choices");
+const bgElement = document.getElementById("background");
+const characterElement = document.getElementById("character");
 
-const historia = [
+const cenas = [
 
 {
-    texto: "Linha Temporal 0. Evan encontra a gosma negra conhecida como Nexum.",
+    nome: "Narrador",
+    texto: "Linha Temporal 0. Um jovem chamado Evan vivia em profundo sofrimento.",
+    fundo: "assets/fundos/fundo1.jpg",
+    personagem: "",
+},
+
+{
+    nome: "Evan",
+    texto: "Por que eu existo...?",
+    fundo: "assets/fundos/fundo1.jpg",
+    personagem: "assets/personagens/evan.png",
+},
+
+{
+    nome: "Nexum",
+    texto: "Eu posso acabar com sua dor.",
+    fundo: "assets/fundos/fundo2.jpg",
+    personagem: "assets/personagens/nexum.png",
     escolhas: [
-        { texto: "Confiar imediatamente em Nexum", efeito: -1, proxima: 1 },
-        { texto: "Observar antes de confiar", efeito: 1, proxima: 1 }
+        { texto: "Confiar em Nexum", efeito: -1, proxima: 3 },
+        { texto: "Desconfiar", efeito: 1, proxima: 3 }
     ]
 },
 
 {
-    texto: "Nexum propõe união completa, tornando-se um só ser.",
-    escolhas: [
-        { texto: "Aceitar a fusão", efeito: -1, proxima: 2 },
-        { texto: "Recusar e questionar suas intenções", efeito: 1, proxima: 2 }
-    ]
-},
-
-{
-    texto: "A verdade é revelada: Nexum quer quebrar todas as dimensões.",
-    escolhas: [
-        { texto: "Lutar para salvar Evan e o universo", efeito: 1, proxima: 3 },
-        { texto: "Desistir e aceitar o fim", efeito: -1, proxima: 3 }
-    ]
+    nome: "Narrador",
+    texto: "A fusão começa... algo está errado.",
+    fundo: "assets/fundos/fundo3.jpg",
+    personagem: "",
 }
 
 ];
 
-function iniciar() {
-    mostrarEtapa();
-}
+function mostrarCena() {
 
-function mostrarEtapa() {
-    if (etapa >= historia.length) {
-        mostrarFinal();
-        return;
-    }
+    let cena = cenas[cenaAtual];
 
-    storyElement.innerText = historia[etapa].texto;
+    nameElement.innerText = cena.nome;
+    textElement.innerText = cena.texto;
+    bgElement.src = cena.fundo;
+    characterElement.src = cena.personagem;
+
     choicesElement.innerHTML = "";
 
-    historia[etapa].escolhas.forEach(escolha => {
-        const button = document.createElement("button");
-        button.innerText = escolha.texto;
-        button.onclick = () => {
-            equilibrio += escolha.efeito;
-            etapa = escolha.proxima;
-            mostrarEtapa();
+    if (cena.escolhas) {
+        cena.escolhas.forEach(escolha => {
+            let button = document.createElement("button");
+            button.innerText = escolha.texto;
+            button.onclick = () => {
+                equilibrio += escolha.efeito;
+                cenaAtual = escolha.proxima;
+                mostrarCena();
+            };
+            choicesElement.appendChild(button);
+        });
+    } else {
+        document.onclick = () => {
+            cenaAtual++;
+            if (cenaAtual < cenas.length) {
+                mostrarCena();
+            } else {
+                mostrarFinal();
+            }
         };
-        choicesElement.appendChild(button);
-    });
+    }
 }
 
 function mostrarFinal() {
-    choicesElement.innerHTML = "";
-
-    if (equilibrio >= 2) {
-        storyElement.innerText = "FINAL BOM: O equilíbrio foi restaurado. Nexum é selado e Evan é libertado.";
-    } else if (equilibrio <= -2) {
-        storyElement.innerText = "FINAL RUIM: Nexum domina todas as linhas temporais. Tudo deixa de existir.";
+    if (equilibrio >= 1) {
+        textElement.innerText = "FINAL BOM: Nexum é derrotado.";
     } else {
-        storyElement.innerText = "FINAL MÉDIO: Nexum é contido parcialmente. O universo permanece instável.";
+        textElement.innerText = "FINAL RUIM: Nexum consome tudo.";
     }
+    nameElement.innerText = "Fim";
+    characterElement.src = "";
+    choicesElement.innerHTML = "";
 }
 
-iniciar();
+mostrarCena();
